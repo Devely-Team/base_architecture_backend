@@ -14,8 +14,23 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "Feature",
+            dependencies: [
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "Vapor", package: "vapor")
+            ],
+            swiftSettings: [
+                // Enable better optimizations when building in Release configuration. Despite the use of
+                // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
+                // builds. See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
+            ]
+        ),
+        .target(
             name: "App",
             dependencies: [
+                .target(name: "Feature"),
+                
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentMySQLDriver", package: "fluent-mysql-driver"),
                 .product(name: "Vapor", package: "vapor")
@@ -27,8 +42,14 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
-        .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
+        .executableTarget(
+            name: "Run",
+            dependencies: [
+                .target(name: "App")
+            ]
+        ),
         .testTarget(name: "AppTests", dependencies: [
+            .target(name: "Feature"),
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
         ])

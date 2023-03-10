@@ -23,6 +23,4 @@ struct AdminController: RouteCollection {
         return await execute(of: req, with: .list)
     }
     
-    
-
 }
